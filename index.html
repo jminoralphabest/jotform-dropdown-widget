@@ -20,7 +20,7 @@
             font-weight: bold;
             color: #555;
         }
-        select {
+        select, input[type="text"] {
             padding: 0.75rem;
             border: 1px solid #ccc;
             border-radius: 8px;
@@ -28,31 +28,44 @@
             font-size: 1rem;
             cursor: pointer;
         }
-        select:focus {
+        select:focus, input[type="text"]:focus {
             outline: none;
             border-color: #007bff;
             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        input[type="text"] {
+            margin-top: 0.5rem;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: text;
+        }
+        /* Style for initially hidden text inputs */
+        .other-input-hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="form-group">
         <label for="state">State:</label>
-        <select id="state" onchange="updateDistricts()">
+        <select id="state" onchange="updateDistricts(); toggleOtherInput('state')">
             <option value="">Please choose</option>
         </select>
+        <input type="text" id="otherStateInput" class="other-input-hidden" placeholder="Enter State">
     </div>
     <div class="form-group">
         <label for="district">District:</label>
-        <select id="district" onchange="updateSites()">
-            <option value="">Please choose</option>
+        <select id="district" onchange="updateSites(); toggleOtherInput('district')">
+            <option value="">Choose State First</option>
         </select>
+        <input type="text" id="otherDistrictInput" class="other-input-hidden" placeholder="Enter District">
     </div>
     <div class="form-group">
         <label for="site">Site:</label>
-        <select id="site">
-            <option value="">Please choose</option>
+        <select id="site" onchange="toggleOtherInput('site')">
+            <option value="">Choose District First</option>
         </select>
+        <input type="text" id="otherSiteInput" class="other-input-hidden" placeholder="Enter Site">
     </div>
     <script>
         const data = [
@@ -2989,22 +3002,45 @@
             return uniqueItems.sort();
         }
 
+        // Toggles the visibility of the "Other" text input
+        function toggleOtherInput(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const otherInput = document.getElementById(`other${dropdownId.charAt(0).toUpperCase() + dropdownId.slice(1)}Input`);
+            if (dropdown.value === 'Other') {
+                otherInput.style.display = 'block';
+            } else {
+                otherInput.style.display = 'none';
+                otherInput.value = ''; // Clear the input when hidden
+            }
+        }
+
         function updateDistricts() {
             let state = document.getElementById("state").value;
             let districts = getUniqueAndSorted(data.filter(row => row.state === state), "district");
             let districtSel = document.getElementById("district");
             let siteSel = document.getElementById("site");
             
-            // Clear existing options and add the default "Please choose" option
-            districtSel.innerHTML = '<option value="">Please choose</option>';
-            siteSel.innerHTML = '<option value="">Please choose</option>';
+            // Hide "Other" text inputs for district and site
+            document.getElementById('otherDistrictInput').style.display = 'none';
+            document.getElementById('otherSiteInput').style.display = 'none';
+
+            // Clear existing options and add the default option
+            districtSel.innerHTML = '<option value="">Choose State First</option>';
+            siteSel.innerHTML = '<option value="">Choose District First</option>';
 
             // Add new options if a state is selected
-            if (state) {
+            if (state && state !== 'Other') {
+                districts.push("Other");
                 const districtOptions = districts.map(d => `<option value="${d}">${d}</option>`).join('');
                 districtSel.innerHTML += districtOptions;
+            } else if (state === 'Other') {
+                 // If the selected state is "Other", just show "Other" in the district dropdown
+                districtSel.innerHTML = '<option value="">Please choose</option><option value="Other">Other</option>';
             }
 
+            // Disable district dropdown if no state is selected or other state is selected
+            districtSel.disabled = !state || state === 'Other';
+            
             updateSites();
         }
 
@@ -3013,21 +3049,30 @@
             let district = document.getElementById("district").value;
             
             let sites = [];
-            // Only filter if both state and district are selected
-            if (state && district) {
+            // Only filter if both state and district are selected and not "Other"
+            if (state && district && state !== 'Other' && district !== 'Other') {
                  sites = getUniqueAndSorted(data.filter(row => row.state === state && row.district === district), "site name");
             }
             
             let siteSel = document.getElementById("site");
             
-            // Clear existing options and add the default "Please choose" option
-            siteSel.innerHTML = '<option value="">Please choose</option>';
+            // Hide "Other" text input for site
+            document.getElementById('otherSiteInput').style.display = 'none';
 
-            // Add new options if a district is selected
-            if (sites.length > 0) {
+            // Clear existing options and add the default "Choose District First" option
+            siteSel.innerHTML = '<option value="">Choose District First</option>';
+
+            // Add new options if a district is selected, including "Other"
+            if (district && district !== 'Other') {
+                sites.push("Other");
                 const siteOptions = sites.map(s => `<option value="${s}">${s}</option>`).join('');
                 siteSel.innerHTML += siteOptions;
+            } else if (district === 'Other') {
+                // If the selected district is "Other", just show "Other" in the site dropdown
+                siteSel.innerHTML = '<option value="">Please choose</option><option value="Other">Other</option>';
             }
+            
+            siteSel.disabled = !district || district === 'Other';
         }
 
         window.onload = function() {
@@ -3035,20 +3080,41 @@
             let stateSel = document.getElementById("state");
             // Clear existing options and add the default "Please choose" option
             stateSel.innerHTML = '<option value="">Please choose</option>';
+            states.push("Other");
             const stateOptions = states.map(s => `<option value="${s}">${s}</option>`).join('');
             stateSel.innerHTML += stateOptions;
             
+            // Initialize the other input boxes to be hidden
+            toggleOtherInput('state');
+            toggleOtherInput('district');
+            toggleOtherInput('site');
+
             updateDistricts();
         }
 
         // Jotform: send to parent on submit
         JFCustomWidget.subscribe("submit", function() {
+            let stateValue = document.getElementById("state").value;
+            if (stateValue === 'Other') {
+                stateValue = document.getElementById("otherStateInput").value;
+            }
+
+            let districtValue = document.getElementById("district").value;
+            if (districtValue === 'Other') {
+                districtValue = document.getElementById("otherDistrictInput").value;
+            }
+            
+            let siteValue = document.getElementById("site").value;
+            if (siteValue === 'Other') {
+                siteValue = document.getElementById("otherSiteInput").value;
+            }
+
             let result = {
                 valid: true,
                 value: {
-                    state: document.getElementById("state").value,
-                    district: document.getElementById("district").value,
-                    site: document.getElementById("site").value
+                    state: stateValue,
+                    district: districtValue,
+                    site: siteValue
                 }
             };
             JFCustomWidget.sendSubmit(result);
@@ -3056,4 +3122,5 @@
     </script>
 </body>
 </html>
+
 
