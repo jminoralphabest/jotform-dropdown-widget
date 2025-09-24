@@ -3019,11 +3019,9 @@
             const districtSel = document.getElementById("district");
             const siteSel = document.getElementById("site");
             
-            // Hide "Other" text inputs for district and site
             document.getElementById('otherDistrictInput').style.display = 'none';
             document.getElementById('otherSiteInput').style.display = 'none';
 
-            // Clear existing options and add the default option
             districtSel.innerHTML = '<option value="">Choose State First</option>';
             siteSel.innerHTML = '<option value="">Choose District First</option>';
             siteSel.disabled = true;
@@ -3034,16 +3032,16 @@
                 const districtOptions = districts.map(d => `<option value="${d}">${d}</option>`).join('');
                 districtSel.innerHTML += districtOptions;
                 districtSel.disabled = false;
+                // Manually trigger the next update
                 updateSites();
             } else if (state === 'Other') {
-                // If the selected state is "Other", set district to "Other" and enable the text box
                 districtSel.innerHTML = '<option value="Other">Other</option>';
                 districtSel.value = 'Other';
                 districtSel.disabled = false;
                 toggleOtherInput('district');
+                // Manually trigger the next update
                 updateSites();
             } else {
-                // If no state is chosen, disable the district dropdown
                 districtSel.disabled = true;
             }
         }
@@ -3056,13 +3054,10 @@
             
             const siteSel = document.getElementById("site");
             
-            // Hide "Other" text input for site
             document.getElementById('otherSiteInput').style.display = 'none';
 
-            // Clear existing options and add the default "Choose District First" option
             siteSel.innerHTML = '<option value="">Choose District First</option>';
 
-            // Add new options if a district is selected, and it's not "Other"
             if (district && district !== 'Other') {
                 sites = getUniqueAndSorted(data.filter(row => row.state === state && row.district === district), "site name");
                 sites.push("Other");
@@ -3070,13 +3065,11 @@
                 siteSel.innerHTML += siteOptions;
                 siteSel.disabled = false;
             } else if (district === 'Other') {
-                // If the selected district is "Other", set site to "Other" and enable the text box
                 siteSel.innerHTML = '<option value="Other">Other</option>';
                 siteSel.value = 'Other';
                 siteSel.disabled = false;
                 toggleOtherInput('site');
             } else {
-                 // If no district is chosen, disable the site dropdown
                 siteSel.disabled = true;
             }
         }
@@ -3084,49 +3077,47 @@
         window.onload = function() {
             const states = getUniqueAndSorted(data, "state");
             const stateSel = document.getElementById("state");
-            // Clear existing options and add the default "Please choose" option
+            
             stateSel.innerHTML = '<option value="">Please choose</option>';
             states.push("Other");
             const stateOptions = states.map(s => `<option value="${s}">${s}</option>`).join('');
             stateSel.innerHTML += stateOptions;
             
-            // Initialize the other input boxes to be hidden
             toggleOtherInput('state');
             toggleOtherInput('district');
             toggleOtherInput('site');
 
-            // Set initial state of dropdowns
             document.getElementById('district').disabled = true;
             document.getElementById('site').disabled = true;
-        }
 
-        // Jotform: send to parent on submit
-        JFCustomWidget.subscribe("submit", function() {
-            let stateValue = document.getElementById("state").value;
-            if (stateValue === 'Other') {
-                stateValue = document.getElementById("otherStateInput").value;
-            }
-
-            let districtValue = document.getElementById("district").value;
-            if (districtValue === 'Other') {
-                districtValue = document.getElementById("otherDistrictInput").value;
-            }
-            
-            let siteValue = document.getElementById("site").value;
-            if (siteValue === 'Other') {
-                siteValue = document.getElementById("otherSiteInput").value;
-            }
-
-            let result = {
-                valid: true,
-                value: {
-                    state: stateValue,
-                    district: districtValue,
-                    site: siteValue
+            // Subscribe to JotForm events here, after the JFCustomWidget script is loaded
+            JFCustomWidget.subscribe("submit", function() {
+                let stateValue = document.getElementById("state").value;
+                if (stateValue === 'Other') {
+                    stateValue = document.getElementById("otherStateInput").value;
                 }
-            };
-            JFCustomWidget.sendSubmit(result);
-        });
+
+                let districtValue = document.getElementById("district").value;
+                if (districtValue === 'Other') {
+                    districtValue = document.getElementById("otherDistrictInput").value;
+                }
+                
+                let siteValue = document.getElementById("site").value;
+                if (siteValue === 'Other') {
+                    siteValue = document.getElementById("otherSiteInput").value;
+                }
+
+                let result = {
+                    valid: true,
+                    value: {
+                        state: stateValue,
+                        district: districtValue,
+                        site: siteValue
+                    }
+                };
+                JFCustomWidget.sendSubmit(result);
+            });
+        }
     </script>
 </body>
 </html>
