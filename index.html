@@ -3028,18 +3028,23 @@
             districtSel.innerHTML = '<option value="">Choose State First</option>';
             siteSel.innerHTML = '<option value="">Choose District First</option>';
 
-            // Add new options if a state is selected
+            // Add new options if a state is selected and it's not "Other"
             if (state && state !== 'Other') {
                 districts.push("Other");
                 const districtOptions = districts.map(d => `<option value="${d}">${d}</option>`).join('');
                 districtSel.innerHTML += districtOptions;
+                districtSel.disabled = false;
             } else if (state === 'Other') {
-                 // If the selected state is "Other", just show "Other" in the district dropdown
-                districtSel.innerHTML = '<option value="">Please choose</option><option value="Other">Other</option>';
+                // If the selected state is "Other", set district to "Other" and enable the text box
+                districtSel.innerHTML = '<option value="Other">Other</option>';
+                districtSel.value = 'Other';
+                districtSel.disabled = true;
+                toggleOtherInput('district');
+                updateSites();
+            } else {
+                // If no state is chosen, disable the district dropdown
+                districtSel.disabled = true;
             }
-
-            // Disable district dropdown if no state is selected or other state is selected
-            districtSel.disabled = !state || state === 'Other';
             
             updateSites();
         }
@@ -3049,10 +3054,6 @@
             let district = document.getElementById("district").value;
             
             let sites = [];
-            // Only filter if both state and district are selected and not "Other"
-            if (state && district && state !== 'Other' && district !== 'Other') {
-                 sites = getUniqueAndSorted(data.filter(row => row.state === state && row.district === district), "site name");
-            }
             
             let siteSel = document.getElementById("site");
             
@@ -3062,17 +3063,23 @@
             // Clear existing options and add the default "Choose District First" option
             siteSel.innerHTML = '<option value="">Choose District First</option>';
 
-            // Add new options if a district is selected, including "Other"
+            // Add new options if a district is selected, and it's not "Other"
             if (district && district !== 'Other') {
+                sites = getUniqueAndSorted(data.filter(row => row.state === state && row.district === district), "site name");
                 sites.push("Other");
                 const siteOptions = sites.map(s => `<option value="${s}">${s}</option>`).join('');
                 siteSel.innerHTML += siteOptions;
+                siteSel.disabled = false;
             } else if (district === 'Other') {
-                // If the selected district is "Other", just show "Other" in the site dropdown
-                siteSel.innerHTML = '<option value="">Please choose</option><option value="Other">Other</option>';
+                // If the selected district is "Other", set site to "Other" and enable the text box
+                siteSel.innerHTML = '<option value="Other">Other</option>';
+                siteSel.value = 'Other';
+                siteSel.disabled = true;
+                toggleOtherInput('site');
+            } else {
+                 // If no district is chosen, disable the site dropdown
+                siteSel.disabled = true;
             }
-            
-            siteSel.disabled = !district || district === 'Other';
         }
 
         window.onload = function() {
@@ -3089,7 +3096,9 @@
             toggleOtherInput('district');
             toggleOtherInput('site');
 
-            updateDistricts();
+            // Set initial state of dropdowns
+            document.getElementById('district').disabled = true;
+            document.getElementById('site').disabled = true;
         }
 
         // Jotform: send to parent on submit
@@ -3122,5 +3131,3 @@
     </script>
 </body>
 </html>
-
-
