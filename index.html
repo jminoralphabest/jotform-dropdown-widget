@@ -2052,11 +2052,6 @@
             {
                 "state": "CO",
                 "district": "Poudre",
-                "site name": "Lopez Elementary School"
-            },
-            {
-                "state": "CO",
-                "district": "Poudre",
                 "site name": "McGraw Elementary School"
             },
             {
@@ -3012,6 +3007,11 @@
                 otherInput.style.display = 'none';
                 otherInput.value = ''; // Clear the input when hidden
             }
+            
+            // This is the key fix: tell JotForm to resize the widget
+            if (JFCustomWidget) {
+                JFCustomWidget.setHeight(document.body.scrollHeight);
+            }
         }
 
         function updateDistricts() {
@@ -3032,17 +3032,20 @@
                 const districtOptions = districts.map(d => `<option value="${d}">${d}</option>`).join('');
                 districtSel.innerHTML += districtOptions;
                 districtSel.disabled = false;
-                // Manually trigger the next update
                 updateSites();
             } else if (state === 'Other') {
                 districtSel.innerHTML = '<option value="Other">Other</option>';
                 districtSel.value = 'Other';
                 districtSel.disabled = false;
                 toggleOtherInput('district');
-                // Manually trigger the next update
                 updateSites();
             } else {
                 districtSel.disabled = true;
+            }
+            
+            // Set the new height after the content has been updated
+            if (JFCustomWidget) {
+                JFCustomWidget.setHeight(document.body.scrollHeight);
             }
         }
 
@@ -3072,6 +3075,11 @@
             } else {
                 siteSel.disabled = true;
             }
+            
+            // Set the new height after the content has been updated
+            if (JFCustomWidget) {
+                JFCustomWidget.setHeight(document.body.scrollHeight);
+            }
         }
 
         window.onload = function() {
@@ -3089,8 +3097,12 @@
 
             document.getElementById('district').disabled = true;
             document.getElementById('site').disabled = true;
+            
+            // Set the initial height of the widget on load
+            if (JFCustomWidget) {
+                JFCustomWidget.setHeight(document.body.scrollHeight);
+            }
 
-            // Subscribe to JotForm events here, after the JFCustomWidget script is loaded
             JFCustomWidget.subscribe("submit", function() {
                 let stateValue = document.getElementById("state").value;
                 if (stateValue === 'Other') {
