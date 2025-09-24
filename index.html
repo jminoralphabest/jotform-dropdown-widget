@@ -116,7 +116,6 @@
             },
             {
                 "state": "AZ",
-                "district": "Amphitheater",
                 "site name": "Mesa Verde Elementary School"
             },
             {
@@ -3008,10 +3007,12 @@
                 otherInput.value = ''; // Clear the input when hidden
             }
             
-            // This is the key fix: tell JotForm to resize the widget
-            if (JFCustomWidget) {
-                JFCustomWidget.setHeight(document.body.scrollHeight);
-            }
+            // Set a slight delay to allow the DOM to render the new elements before resizing
+            setTimeout(() => {
+                if (JFCustomWidget) {
+                    JFCustomWidget.setHeight(document.body.scrollHeight);
+                }
+            }, 0);
         }
 
         function updateDistricts() {
@@ -3043,10 +3044,12 @@
                 districtSel.disabled = true;
             }
             
-            // Set the new height after the content has been updated
-            if (JFCustomWidget) {
-                JFCustomWidget.setHeight(document.body.scrollHeight);
-            }
+            // Set a slight delay to allow the DOM to render the new elements before resizing
+            setTimeout(() => {
+                if (JFCustomWidget) {
+                    JFCustomWidget.setHeight(document.body.scrollHeight);
+                }
+            }, 0);
         }
 
         function updateSites() {
@@ -3076,10 +3079,12 @@
                 siteSel.disabled = true;
             }
             
-            // Set the new height after the content has been updated
-            if (JFCustomWidget) {
-                JFCustomWidget.setHeight(document.body.scrollHeight);
-            }
+            // Set a slight delay to allow the DOM to render the new elements before resizing
+            setTimeout(() => {
+                if (JFCustomWidget) {
+                    JFCustomWidget.setHeight(document.body.scrollHeight);
+                }
+            }, 0);
         }
 
         window.onload = function() {
@@ -3099,9 +3104,11 @@
             document.getElementById('site').disabled = true;
             
             // Set the initial height of the widget on load
-            if (JFCustomWidget) {
-                JFCustomWidget.setHeight(document.body.scrollHeight);
-            }
+            setTimeout(() => {
+                if (JFCustomWidget) {
+                    JFCustomWidget.setHeight(document.body.scrollHeight);
+                }
+            }, 0);
 
             JFCustomWidget.subscribe("submit", function() {
                 let stateValue = document.getElementById("state").value;
