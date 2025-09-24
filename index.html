@@ -3015,10 +3015,9 @@
         }
 
         function updateDistricts() {
-            let state = document.getElementById("state").value;
-            let districts = getUniqueAndSorted(data.filter(row => row.state === state), "district");
-            let districtSel = document.getElementById("district");
-            let siteSel = document.getElementById("site");
+            const state = document.getElementById("state").value;
+            const districtSel = document.getElementById("district");
+            const siteSel = document.getElementById("site");
             
             // Hide "Other" text inputs for district and site
             document.getElementById('otherDistrictInput').style.display = 'none';
@@ -3027,35 +3026,35 @@
             // Clear existing options and add the default option
             districtSel.innerHTML = '<option value="">Choose State First</option>';
             siteSel.innerHTML = '<option value="">Choose District First</option>';
+            siteSel.disabled = true;
 
-            // Add new options if a state is selected and it's not "Other"
             if (state && state !== 'Other') {
+                const districts = getUniqueAndSorted(data.filter(row => row.state === state), "district");
                 districts.push("Other");
                 const districtOptions = districts.map(d => `<option value="${d}">${d}</option>`).join('');
                 districtSel.innerHTML += districtOptions;
                 districtSel.disabled = false;
+                updateSites();
             } else if (state === 'Other') {
                 // If the selected state is "Other", set district to "Other" and enable the text box
                 districtSel.innerHTML = '<option value="Other">Other</option>';
                 districtSel.value = 'Other';
-                districtSel.disabled = true;
+                districtSel.disabled = false;
                 toggleOtherInput('district');
                 updateSites();
             } else {
                 // If no state is chosen, disable the district dropdown
                 districtSel.disabled = true;
             }
-            
-            updateSites();
         }
 
         function updateSites() {
-            let state = document.getElementById("state").value;
-            let district = document.getElementById("district").value;
+            const state = document.getElementById("state").value;
+            const district = document.getElementById("district").value;
             
             let sites = [];
             
-            let siteSel = document.getElementById("site");
+            const siteSel = document.getElementById("site");
             
             // Hide "Other" text input for site
             document.getElementById('otherSiteInput').style.display = 'none';
@@ -3074,7 +3073,7 @@
                 // If the selected district is "Other", set site to "Other" and enable the text box
                 siteSel.innerHTML = '<option value="Other">Other</option>';
                 siteSel.value = 'Other';
-                siteSel.disabled = true;
+                siteSel.disabled = false;
                 toggleOtherInput('site');
             } else {
                  // If no district is chosen, disable the site dropdown
@@ -3083,8 +3082,8 @@
         }
 
         window.onload = function() {
-            let states = getUniqueAndSorted(data, "state");
-            let stateSel = document.getElementById("state");
+            const states = getUniqueAndSorted(data, "state");
+            const stateSel = document.getElementById("state");
             // Clear existing options and add the default "Please choose" option
             stateSel.innerHTML = '<option value="">Please choose</option>';
             states.push("Other");
