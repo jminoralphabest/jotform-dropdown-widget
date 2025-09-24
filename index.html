@@ -2993,6 +2993,7 @@
             let state = document.getElementById("state").value;
             let districts = getUniqueAndSorted(data.filter(row => row.state === state), "district");
             let districtSel = document.getElementById("district");
+            let siteSel = document.getElementById("site");
             
             // Clear existing options and add the default "Please choose" option
             districtSel.innerHTML = '<option value="">Please choose</option>';
@@ -3055,3 +3056,4 @@
     </script>
 </body>
 </html>
+
